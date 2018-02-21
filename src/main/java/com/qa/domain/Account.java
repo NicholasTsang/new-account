@@ -1,7 +1,16 @@
 package com.qa.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class Account {
 
+	@Id  @GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
+	
 	private String firstName;
 	private String secondName;
 	private String accountNumber;
@@ -37,3 +46,19 @@ public class Account {
 	}
 
 }
+
+
+/*@Entity
+public class Account {
+@Id  @Generated(value = { "" })
+private Long id;
+
+private String firstName;
+private String secondName;
+private String Accountnumber;
+
+Account john = new Account("john ", " gordon", "646514");
+Em.persist(john);
+
+}
+*/
