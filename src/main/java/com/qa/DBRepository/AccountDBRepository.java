@@ -5,20 +5,25 @@ import static javax.transaction.Transactional.TxType.SUPPORTS;
 
 import java.util.Collection;
 
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
-
+import org.apache.log4j.Logger;
 
 import com.qa.domain.Account;
+import com.qa.service.AccountInterface;
 import com.qa.util.JSONUtil;
 
 
 @Transactional(SUPPORTS)
-public class AccountDBRepository {
+@Default
+public class AccountDBRepository implements AccountInterface {
+	
+	private static final Logger LOGGER = Logger.getLogger(AccountDBRepository.class);
 
 	@PersistenceContext(unitName = "primary")
 	private EntityManager manager;
@@ -28,8 +33,8 @@ public class AccountDBRepository {
 
 	public String getAllAccounts() {
 		Query query = manager.createQuery("Select a FROM Account a");
+		LOGGER.info("THIS IS THE QUERY" + query);
 		Collection<Account> accounts = (Collection<Account>) query.getResultList();
-		
 		return util.getJSONForObject(accounts);
 	}
 
@@ -43,10 +48,13 @@ public class AccountDBRepository {
 	@Transactional(REQUIRED)
 	public String updateAccount(Long id, String accountToUpdate) {
 		Account updatedAccount = util.getObjectForJSON(accountToUpdate, Account.class);
-		Account accountFromDB = findAccount(id);
+		//Account accountFromDB = findAccount(id);
 		if (accountToUpdate != null) {
-			accountFromDB = updatedAccount;
-			manager.merge(accountFromDB);
+		findAccount(id).setFirstName(updatedAccount.getFirstName());
+		findAccount(id).setSecondName(updatedAccount.getSecondName());
+		findAccount(id).setAccountNumber(updatedAccount.getAccountNumber());
+			//accountFromDB = updatedAccount;
+			//manager.merge(accountFromDB);
 		}
 		return "{\"message\": \"account sucessfully updated\"}";
 	}
@@ -63,7 +71,7 @@ public class AccountDBRepository {
 	private Account findAccount(Long id) {
 		return manager.find(Account.class, id);
 	}
-
+	
 	public void setManager(EntityManager manager) {
 		this.manager = manager;
 	}
